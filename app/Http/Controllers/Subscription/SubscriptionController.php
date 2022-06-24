@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Subscription;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Auth;
+
 
 class SubscriptionController extends Controller
 {
@@ -33,7 +34,35 @@ class SubscriptionController extends Controller
 
     public function premium()
     {
-        
+
         return view('subscriptions.premium');
+    }
+
+    public function account()
+    {
+        $invoices = auth()->user()->invoices();
+        return view('subscriptions.account', compact('invoices'));
+    }
+
+    public function downloadInvoice($invoiceId)
+    {
+
+        return Auth::user()->
+                    downloadInvoice($invoiceId,[
+                        'vendor' => config('app,name'),
+                        'product' => 'Assinatura VIP'
+                    ]);
+    }
+
+    public function cancel()
+    {
+        auth()->user()->subscription('default')->cancel();
+        return redirect()->route('subscriptions.account');
+    }
+
+    public function resume()
+    {
+        auth()->user()->subscription('default')->resume();
+        return redirect()->route('subscriptions.account');
     }
 }
